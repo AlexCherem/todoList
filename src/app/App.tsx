@@ -1,6 +1,7 @@
-import React, { useEffect } from "react";
-import { useSelector } from "react-redux";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { useAppDispatch } from "common/hooks"
+import React, { useEffect } from "react"
+import { useSelector } from "react-redux"
+import { BrowserRouter, Route, Routes } from "react-router-dom"
 import {
   AppBar,
   Button,
@@ -10,36 +11,36 @@ import {
   LinearProgress,
   Toolbar,
   Typography,
-} from "@mui/material";
-import { Menu } from "@mui/icons-material";
-import { Login } from "features/auth/ui/login/login";
-import "./App.css";
-import { TodolistsList } from "features/TodolistsList/TodolistsList";
-import { ErrorSnackbar } from "common/components";
-import { useActions } from "common/hooks";
-import { selectIsLoggedIn } from "features/auth/model/auth.selectors";
-import { selectAppStatus, selectIsInitialized } from "app/app.selectors";
-import { authThunks } from "features/auth/model/auth.slice";
+} from "@mui/material"
+import { Menu } from "@mui/icons-material"
+import "./App.css"
+import { ErrorSnackbar } from "common/components"
+import { authThunks, selectIsLoggedIn } from "features/auth/model/authSlice"
+import { Login } from "features/auth/ui/login/Login"
+import { TodolistsList } from "features/todolistsList/TodolistsList"
+import { selectIsInitialized, selectStatus } from "./appSlice"
 
 function App() {
-  const status = useSelector(selectAppStatus);
-  const isInitialized = useSelector(selectIsInitialized);
-  const isLoggedIn = useSelector(selectIsLoggedIn);
+  const status = useSelector(selectStatus)
+  const isInitialized = useSelector(selectIsInitialized)
+  const isLoggedIn = useSelector(selectIsLoggedIn)
 
-  const { initializeApp, logout } = useActions(authThunks);
+  const dispatch = useAppDispatch()
 
   useEffect(() => {
-    initializeApp();
-  }, []);
+    dispatch(authThunks.initializeApp())
+  }, [])
 
-  const logoutHandler = () => logout();
+  const logoutHandler = () => {
+    dispatch(authThunks.logout())
+  }
 
   if (!isInitialized) {
     return (
       <div style={{ position: "fixed", top: "30%", textAlign: "center", width: "100%" }}>
         <CircularProgress />
       </div>
-    );
+    )
   }
 
   return (
@@ -68,7 +69,7 @@ function App() {
         </Container>
       </div>
     </BrowserRouter>
-  );
+  )
 }
 
-export default App;
+export default App

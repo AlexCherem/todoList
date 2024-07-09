@@ -1,42 +1,41 @@
-import React from "react";
-import { FormikHelpers, useFormik } from "formik";
-import { useSelector } from "react-redux";
-import { Navigate } from "react-router-dom";
-import { Button, Checkbox, FormControl, FormControlLabel, FormGroup, FormLabel, Grid, TextField } from "@mui/material";
-import { useActions } from "common/hooks";
-import { selectIsLoggedIn } from "features/auth/model/auth.selectors";
-import { authThunks } from "features/auth/model/auth.slice";
-import { LoginParamsType } from "features/auth/api/auth.api";
-import { BaseResponseType } from "common/types";
-import s from "features/auth/ui/login/login.module.css";
+import { Button, Checkbox, FormControl, FormControlLabel, FormGroup, FormLabel, Grid, TextField } from "@mui/material"
+import { useAppDispatch } from "common/hooks"
+import { BaseResponse } from "common/types"
+import { FormikHelpers, useFormik } from "formik"
+import React from "react"
+import { useSelector } from "react-redux"
+import { Navigate } from "react-router-dom"
+import { LoginParamsType } from "../../api/authApi"
+import { authThunks, selectIsLoggedIn } from "../../model/authSlice"
+import s from "./Login.module.css"
 
 type FormikErrorType = {
-  email?: string;
-  password?: string;
-  rememberMe?: boolean;
-};
+  email?: string
+  password?: string
+  rememberMe?: boolean
+}
 
 export const Login = () => {
-  const { login } = useActions(authThunks);
+  const dispatch = useAppDispatch()
 
-  const isLoggedIn = useSelector(selectIsLoggedIn);
+  const isLoggedIn = useSelector(selectIsLoggedIn)
 
   const formik = useFormik({
     validate: (values) => {
-      const errors: FormikErrorType = {};
+      const errors: FormikErrorType = {}
       if (!values.email) {
-        errors.email = "Email is required";
+        errors.email = "Email is required"
       } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
-        errors.email = "Invalid email address";
+        errors.email = "Invalid email address"
       }
 
       if (!values.password) {
-        errors.password = "Required";
+        errors.password = "Required"
       } else if (values.password.length < 3) {
-        errors.password = "Must be 3 characters or more";
+        errors.password = "Must be 3 characters or more"
       }
 
-      return errors;
+      return errors
     },
     initialValues: {
       email: "",
@@ -44,18 +43,18 @@ export const Login = () => {
       rememberMe: false,
     },
     onSubmit: (values, formikHelpers: FormikHelpers<LoginParamsType>) => {
-      login(values)
+      dispatch(authThunks.login(values))
         .unwrap()
-        .catch((reason: BaseResponseType) => {
+        .catch((reason: BaseResponse) => {
           reason.fieldsErrors?.forEach((fieldError) => {
-            formikHelpers.setFieldError(fieldError.field, fieldError.error);
-          });
-        });
+            formikHelpers.setFieldError(fieldError.field, fieldError.error)
+          })
+        })
     },
-  });
+  })
 
   if (isLoggedIn) {
-    return <Navigate to={"/"} />;
+    return <Navigate to={"/"} />
   }
 
   return (
@@ -96,5 +95,5 @@ export const Login = () => {
         </form>
       </Grid>
     </Grid>
-  );
-};
+  )
+}
